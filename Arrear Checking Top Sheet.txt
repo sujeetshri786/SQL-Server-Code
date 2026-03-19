@@ -1,0 +1,18 @@
+select
+Count(a.ClientLoanID) as ALC, sum(cast(a.PrincipalOutstanding as Float)) as out,
+
+case when a.NumInstallmentsInArrears<=0 and currentinstallmentperiod<=LoanDurationInWeeks then 'Current - 0 DPD' 
+when a.NumInstallmentsInArrears=1 and currentinstallmentperiod<=LoanDurationInWeeks then '1W DPD'
+when a.NumInstallmentsInArrears=2 and currentinstallmentperiod<=LoanDurationInWeeks then '2W DPD'
+when a.NumInstallmentsInArrears=3 and currentinstallmentperiod<=LoanDurationInWeeks then '3W DPD'
+when a.NumInstallmentsInArrears=4 and currentinstallmentperiod<=LoanDurationInWeeks then '4W DPD'
+when a.NumInstallmentsInArrears>=5 or currentinstallmentperiod>LoanDurationInWeeks then '5W and Above DPD' end as Aging_Status
+from clientloansubscription a (nolock) 
+where a.actualpaidupdate is null and a.principaloutstanding>0 
+Group by
+case when a.NumInstallmentsInArrears<=0 and currentinstallmentperiod<=LoanDurationInWeeks then 'Current - 0 DPD' 
+when a.NumInstallmentsInArrears=1 and currentinstallmentperiod<=LoanDurationInWeeks then '1W DPD'
+when a.NumInstallmentsInArrears=2 and currentinstallmentperiod<=LoanDurationInWeeks then '2W DPD'
+when a.NumInstallmentsInArrears=3 and currentinstallmentperiod<=LoanDurationInWeeks then '3W DPD'
+when a.NumInstallmentsInArrears=4 and currentinstallmentperiod<=LoanDurationInWeeks then '4W DPD'
+when a.NumInstallmentsInArrears>=5 or currentinstallmentperiod>LoanDurationInWeeks then '5W and Above DPD' end 

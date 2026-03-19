@@ -1,0 +1,42 @@
+-------------------------- Center Switching Details ----------- LOCAL -------------
+
+select  ROW_NUMBER() over (order by Centerid) SNo,BranchID,
+(select BranchName from Branches where Centers.BranchID=BranchID) as BranchName,staffid,
+(select staffname from FieldStaff where StaffID=Centers.StaffID) as StaffName,centerid,CenterName,
+(select count(ClientID) from Clients with(nolock) where centerid=left(ClientID,8) and DropOutStatus=0)as NoOfClients,
+(select count(distinct left(ClientloanID,14)) from ClientLoanSubscription with(nolock) where CenterID=left(ClientLoanID,8) and ActualPaidUpDate is null) as NoOfALC,
+(select count(distinct left(ClientloanID,14)) from ClientLoanSubscription with(nolock) where CenterID=left(ClientLoanID,8) and ActualPaidUpDate is null and
+(CurrentInstallmentPeriod <=LoanDurationInWeeks) AND (NumInstallmentsInArrears between 1 and 4)) as NoOfClientsInArrears,
+(select count(distinct left(ClientloanID,14)) from ClientLoanSubscription with(nolock) where CenterID=left(ClientLoanID,8) and ActualPaidUpDate is null and
+(CurrentInstallmentPeriod <=LoanDurationInWeeks) AND (NumInstallmentsInArrears>4)) as NoOfClientsInPAR,
+(select isnull(sum(PrincipalInArrears+InterestInArrears),0) from ClientLoanSubscription with(nolock) where CenterID=left(ClientLoanID,8) and ActualPaidUpDate is null and
+(CurrentInstallmentPeriod <=LoanDurationInWeeks) AND (NumInstallmentsInArrears>4)) as PARAmt,
+(select sum(PrincipalOutstanding) from ClientLoanSubscription with(nolock) where CenterID=left(ClientLoanID,8) and ActualPaidUpDate is null) as PrincipalOutstanding
+from centers where CenterID in('10:02:W1',
+'10:02:20',
+'10:21:08',
+'10:20:ZL',
+'10:05:58',
+'10:20:ZJ',
+'10:20:13',
+'10:10:24',
+'10:20:T4',
+'10:20:53',
+'10:14:73',
+'10:06:BG',
+'10:12:47',
+'10:07:AU',
+'10:07:C9',
+'10:07:21',
+'10:18:46',
+'10:18:01',
+'10:18:84',
+'10:18:8',
+'10:01:BD',
+'10:01:77',
+'10:01:Y6',
+'10:24:AK',
+'10:04:F7',
+'10:04:P8',
+'10:04:P4',
+'10:04:B7') order by CenterID
