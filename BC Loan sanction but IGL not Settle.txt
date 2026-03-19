@@ -1,0 +1,17 @@
+-------cn.ReportingDay=6  
+select left(c.ClientLoanID,5) Branchid,(select Branchname from Branches where Branchid= left(c.ClientLoanID,5) ) Branchname,c.clientloanid,Targetname,husbandname,
+cn.Staffid,(select Staffname from fieldstaff where Staffid=cn.StaffID ) CM_Name,c.PrincipalOutstanding,cls.productcategory,
+case when cn.ReportingDay=1 then 'Monday'
+  when cn.ReportingDay=2 then 'Tuesday'
+  when cn.ReportingDay=3 then 'Wednesday'
+  when cn.ReportingDay=4 then 'Thursday'
+  when cn.ReportingDay=5 then 'Friday'
+  when cn.ReportingDay=6 then 'Saturday' end as 'Meetingday'
+from ClientLoanSubscription c (nolock) 
+inner join clientloanproposal cls (nolock) on c.loanproposalid=cls.LoanProposalID
+inner join centers cn (nolock) on cn.centerid=left(cls.clientid,8)
+where c.ActualPaidUpDate is null and c.PrincipalOutstanding>0 and cn.ReportingDay=6
+and cls.clientid in(select Clientid from clientloanproposal cf (nolock) inner join products p (nolock) on cf.productid=p.productid
+where loandisbursementdate is null and Loan_Category=0  and
+  loanproposalid in(select ExternalLoanNo from LoanFundReleased (nolock) ))
+  order by c.clientloanid
